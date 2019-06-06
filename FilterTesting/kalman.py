@@ -15,6 +15,25 @@ def resolve_carrier_signal(signal):
     """
     return [0]
 
+def low_pass_filter(signal, tau = 16):
+    size = len(signal)
+    filtered_signal = []
+    for n in range(size):
+        if n == 0:
+            filtered_signal.append(signal[0])
+        else:
+            val = ((1 - (1 / tau)) * filtered_signal[n - 1]) + ((1 / tau) * signal[n])
+            filtered_signal.append(val)
+    return clip_list_at(filtered_signal)
+
+def crappy_test_filter(signal):
+    size = len(signal)
+    filtered_signal = []
+    rand_sig = get_random_signal(size, NoiseType.STD_NORMAL)
+    for n in range(size):
+        filtered_signal.append(signal[n] - rand_sig[n])
+    return clip_list_at(filtered_signal)
+
 def is_constrained(testVal, lowerBound = -1, upperBound = 1):
     return (testVal >= lowerBound) and (testVal <= upperBound)
 
@@ -104,7 +123,7 @@ def find_carrier_signal_effectiveness(deviation):
     sum = 0
     for n in range(l):
         sum += deviation[n]
-    return sum / l
+    return 1 - (sum / l)
 
 def find_signal_deviation(carrier_signal, filtered_signal):
     """
@@ -124,7 +143,8 @@ def do_work():
         if (sigB != None):
             full_signal = add_signals(sigA, sigB)
             full_signal = clip_list_at(full_signal)
-            extracted_signal = resolve_carrier_signal(full_signal)
+            #extracted_signal = resolve_carrier_signal(full_signal)
+            extracted_signal = low_pass_filter(full_signal)
             deviation = find_signal_deviation(sigA, extracted_signal)
             effect = find_carrier_signal_effectiveness(deviation)
         else:
@@ -135,11 +155,12 @@ def do_work():
         return
 
     # Plot signals
-    #pyplot.plot(sigA)
-    #pyplot.plot(sigB)
-    #pyplot.plot(full_signal)
-    pyplot.show()
-
     
+    pyplot.plot(full_signal)
+    pyplot.plot(extracted_signal)
+    pyplot.plot(sigA)
+
+    print("Effect Index: " + str(effect * 100) + "\n")
+    pyplot.show()
 
 do_work()
