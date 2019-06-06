@@ -1,8 +1,9 @@
 import numpy as mpy
-import matplotlib as pyplot
+import matplotlib.pyplot as pyplot
+from noise import pnoise1
 from enum import Enum
 
-SIZE = 80
+SIZE = 800
 
 class NoiseType(Enum):
     STD_NORMAL = 1
@@ -13,6 +14,22 @@ def resolve_carrier_signal(signal):
     Uses filtering to resolve the carrier signal
     """
     return [0]
+
+def is_constrained(testVal, lowerBound = -1, upperBound = 1):
+    return (testVal >= lowerBound) and (testVal <= upperBound)
+
+def clip_list_at(l, lowerBound = -1, upperBound = 1):
+    new_l = []
+    for n in range(len(l)):
+        tVal = l[n]
+        if not is_constrained(tVal, lowerBound, upperBound):
+            if tVal < lowerBound:
+                new_l.append(lowerBound)
+            elif tVal > upperBound:
+                new_l.append(upperBound)
+        else:
+            new_l.append(tVal)
+    return new_l
 
 def get_carrier_signal(len = SIZE, carrier = NoiseType.STD_NORMAL):
     """
@@ -38,7 +55,12 @@ def __get_carrier_signal_PERLIN(len = SIZE):
     Gets a carrier signal with typical perlin-esque noise
     Of Length len
     """
-    return [0]
+    noise = []
+    rand_base = mpy.random.randint(0, 256)
+    for n in range(len):
+        val = (5 * n) / SIZE - 2.5
+        noise.append(pnoise1(val + rand_base))
+    return noise
 
 def get_random_signal(len = SIZE, t = NoiseType.STD_NORMAL):
     """
@@ -54,7 +76,13 @@ def __get_random_signal_STD_NORMAL(len = SIZE):
     """
     Gets a random signal with STD NORMAL distribution of length len
     """
-    return [0]
+    sig = []
+    for n in range(len):
+        val = mpy.random.normal(0, 1, None)
+        while not is_constrained(val):
+            val = mpy.random.normal(0, 1, None)
+        sig.append(val)
+    return sig
 
 def add_signals(sigA, sigB):
     """
@@ -90,11 +118,12 @@ def find_signal_deviation(carrier_signal, filtered_signal):
 
 def do_work():
     # Do math
-    sigA = get_carrier_signal(SIZE, NoiseType.STD_NORMAL)
+    sigA = get_carrier_signal(SIZE, NoiseType.PERLIN)
     if (sigA != None):
-        sigB = get_random_signal(SIZE)
+        sigB = get_random_signal(SIZE, NoiseType.STD_NORMAL)
         if (sigB != None):
             full_signal = add_signals(sigA, sigB)
+            full_signal = clip_list_at(full_signal)
             extracted_signal = resolve_carrier_signal(full_signal)
             deviation = find_signal_deviation(sigA, extracted_signal)
             effect = find_carrier_signal_effectiveness(deviation)
@@ -106,6 +135,10 @@ def do_work():
         return
 
     # Plot signals
+    #pyplot.plot(sigA)
+    #pyplot.plot(sigB)
+    #pyplot.plot(full_signal)
+    pyplot.show()
 
     
 
