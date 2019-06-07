@@ -1,6 +1,7 @@
 from parameters import SIZE
 from noiseType import NoiseType
 from noise import pnoise1
+import random
 import numpy as mpy
 
 def get_carrier_signal(len = SIZE, carrier = NoiseType.STD_NORMAL):
@@ -14,9 +15,15 @@ def get_carrier_signal(len = SIZE, carrier = NoiseType.STD_NORMAL):
         return __get_carrier_signal_PERLIN(len)
     elif (carrier == NoiseType.STEP):
         return __get_carrier_signal_STEP(len)
+    elif (carrier == NoiseType.PULSE):
+        return __get_carrier_signal_PULSE(len)
+    elif (carrier == NoiseType.UNIT_PULSE):
+        return __get_carrier_signal_UNIT_PULSE(len)
     else:
         return None
 
+def generate_dirty_signal(signalA, signalB):
+    return clip_list_at(add_signals(signalA, signalB))
 
 def is_constrained(testVal, lowerBound = -1, upperBound = 1):
     return (testVal >= lowerBound) and (testVal <= upperBound)
@@ -72,7 +79,7 @@ def __get_carrier_signal_STD_NORMAL(len = SIZE):
     Gets a carrier signal with STD NORMAL perlin-esque noise
     Of Length len
     """
-    return [0]
+    return __get_random_signal_STD_NORMAL(len)
 
 def __get_carrier_signal_PERLIN(len = SIZE):
     """
@@ -95,6 +102,24 @@ def __get_carrier_signal_STEP(len = SIZE, wait = 100):
             noise.append(1)
     return noise
 
+def __get_carrier_signal_UNIT_PULSE(len = SIZE, wait = 100):
+    noise = []
+    for n in range(len):
+        if n == wait:
+            noise.append(1)
+        else:
+            noise.append(0)
+    return noise
+
+def __get_carrier_signal_PULSE(len = SIZE, wait = 100, width = 100):
+    noise = []
+    for n in range(len):
+        if n < wait or n > (wait + width):
+            noise.append(0)
+        else:
+            noise.append(1)
+    return noise
+
 def get_random_signal(len = SIZE, t = NoiseType.STD_NORMAL):
     """
     Gets a random signal with the desired random signal distribution
@@ -104,6 +129,8 @@ def get_random_signal(len = SIZE, t = NoiseType.STD_NORMAL):
         return __get_random_signal_STD_NORMAL(len)
     elif (t == NoiseType.NONE):
         return __get_random_signal_NONE(len)
+    elif (t == NoiseType.PSEUDO_RAND):
+        return __get_random_signal_PSEUDO(len)
     else:
         return None
 
@@ -121,3 +148,9 @@ def __get_random_signal_STD_NORMAL(len = SIZE):
 
 def __get_random_signal_NONE(len = SIZE):
     return [0] * len
+
+def __get_random_signal_PSEUDO(len = SIZE):
+    sig = []
+    for n in range(len):
+        sig.append((random.randint(0, 200) - 100) / 100)
+    return sig
