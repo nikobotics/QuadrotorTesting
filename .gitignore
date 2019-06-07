@@ -1,3 +1,4 @@
 FilterTesting/.vscode/settings.json
 FilterTesting/.vscode/tasks.json
 FilterTesting/.vscode/launch.json
+*.pyc
