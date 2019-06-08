@@ -21,6 +21,42 @@ def get_carrier_signal(len = SIZE, carrier = NoiseType.STD_NORMAL):
         return __get_carrier_signal_UNIT_PULSE(len)
     else:
         return None
+    
+def __native_LPF(signal, tau = 18):
+    size = len(signal)
+    filtered_signal = []
+    for n in range(size):
+        if n == 0:
+            filtered_signal.append(signal[0])
+        else:
+            val = ((1 - (1 / tau)) * filtered_signal[n - 1]) + ((1 / tau) * signal[n])
+            filtered_signal.append(val)
+    return clip_list_at(filtered_signal)
+
+def get_signal_from_n_sensors(len = SIZE, carrier = NoiseType.PERLIN, random = NoiseType.STD_NORMAL, num_sensors = 1):
+    signalO = get_carrier_signal(len, carrier)
+    signal = signalO
+    for n in range(num_sensors):
+        rand_sig = get_random_signal(len, random)
+        newFullSig = add_signals(rand_sig, signalO)
+        clip_list_at(newFullSig)
+        signal = add_signals(newFullSig, signal)
+        
+    signal = divide_all_by(signal, num_sensors)
+    signal = clip_list_at(signal)
+    return signal, signalO
+
+def average(sigA, sigB):
+    avg = []
+    for a in range(len(sigA)):
+        avg.append((sigA[a] + sigB[a]) / 2)
+    return avg
+
+def divide_all_by(l, div):
+    n = len(l)
+    for a in range(n):
+        l[a] /= div
+    return l
 
 def generate_dirty_signal(signalA, signalB):
     return clip_list_at(add_signals(signalA, signalB))

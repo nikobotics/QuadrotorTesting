@@ -1,4 +1,4 @@
-import signalOperations
+from signalOperations import clip_list_at
 from parameters import SIZE
 from noiseType import NoiseType
 
@@ -11,4 +11,4 @@ def resolve_carrier_signal_LPF(signal, tau = 18):
         else:
             val = ((1 - (1 / tau)) * filtered_signal[n - 1]) + ((1 / tau) * signal[n])
             filtered_signal.append(val)
-    return signalOperations.clip_list_at(filtered_signal)
+    return clip_list_at(filtered_signal)

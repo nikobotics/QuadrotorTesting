@@ -1,22 +1,24 @@
 import noiseType as n
 import signalOperations as so
 import computeFilter as f
-from parameters import SIZE
+from parameters import SIZE, NUM_SENSORS
 import matplotlib.pyplot as pyplot
 
 noise = n.NoiseType.PSEUDO_RAND
 
 def graphAllResponses():
     carrierSigs = n.VALID_CARRIERS
-    randomSig = so.get_random_signal(SIZE, noise)
+    # randomSig = so.get_random_signal(SIZE, noise)
     cnt = len(carrierSigs) / 2
 
     pyplot.title("Signal Responses")
     
     index = 0
     for carrier in carrierSigs:
-        thisCarrier = so.get_carrier_signal(SIZE, carrier)
-        thisNoisy = so.generate_dirty_signal(thisCarrier, randomSig)
+        thisCarriers = so.get_signal_from_n_sensors(SIZE, carrier, noise, NUM_SENSORS)
+        thisCarrier = thisCarriers[1]
+        thisNoisy = thisCarriers[0]
+        # thisNoisy = so.generate_dirty_signal(thisCarrier, randomSig)
 
         filterOut = f.computeFilter(thisNoisy)
 
