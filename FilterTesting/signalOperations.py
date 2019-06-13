@@ -99,6 +99,20 @@ def find_carrier_signal_effectiveness(deviation):
         sum += deviation[n]
     return 1 - (sum / l)
 
+def find_signal_integral(signal):
+    s = 0
+    for n in range(len(signal)):
+        s += signal[n]
+    return s
+
+def find_rel_signal_deviation(carrier_signal, filtered_signal):
+    count = min(len(carrier_signal), len(filtered_signal))
+    deviation = []
+    for n in range(count):
+        deviation.append(filtered_signal[n] - carrier_signal[n])
+    return deviation
+
+
 def find_signal_deviation(carrier_signal, filtered_signal):
     """
     Returns list of deviations
@@ -167,6 +181,8 @@ def get_random_signal(len = SIZE, t = NoiseType.STD_NORMAL):
         return __get_random_signal_NONE(len)
     elif (t == NoiseType.PSEUDO_RAND):
         return __get_random_signal_PSEUDO(len)
+    elif (t == NoiseType.PERLIN):
+        return __get_random_signal_PERLIN(len)
     else:
         return None
 
@@ -181,6 +197,9 @@ def __get_random_signal_STD_NORMAL(len = SIZE):
             val = mpy.random.normal(0, 1, None)
         sig.append(val)
     return sig
+
+def __get_random_signal_PERLIN(len = SIZE):
+    return __get_carrier_signal_PERLIN(len)
 
 def __get_random_signal_NONE(len = SIZE):
     return [0] * len

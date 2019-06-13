@@ -38,8 +38,4 @@ def graphAllResponses():
         index += 1
     pyplot.show()
 
-
-        
-
-
 graphAllResponses()
